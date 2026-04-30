@@ -3,250 +3,363 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BCU FORMULA CONCERT - DRINK RANDOMIZER</title>
-    <!-- ใช้ฟอนต์ไม่มีหัว (Prompt) ที่นิยมในงานดีไซน์สมัยใหม่ -->
-    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600&display=swap" rel="stylesheet">
+    <title>BCU FORMULA CONCERT - Drink Roulette</title>
+    <link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root {
-            --primary-yellow: #ffcc00;
-            --dark-bg: #121212;
-            --card-bg: #1e1e1e;
-            --text-gray: #b0b0b0;
+        /* CSS Reset & Base Setup */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Prompt', sans-serif;
         }
 
         body {
-            font-family: 'Prompt', sans-serif;
-            background-color: var(--dark-bg);
-            color: white;
-            margin: 0;
+            background-color: #050505;
+            color: #ffffff;
+            width: 100vw;
+            height: 100vh;
+            overflow: hidden;
             display: flex;
             justify-content: center;
             align-items: center;
-            min-height: 100vh;
-            overflow-x: hidden;
-            background: radial-gradient(circle at center, #252525 0%, #121212 100%);
+            /* พื้นหลังไล่สีแบบเคลื่อนไหว ให้ฟีลงานคอนเสิร์ต */
+            background: radial-gradient(circle at 50% 50%, #1a1a2e 0%, #000000 100%);
         }
 
-        .container {
-            width: 90%;
-            max-width: 500px;
-            text-align: center;
-            padding: 2rem;
-            background: rgba(30, 30, 30, 0.8);
-            border: 1px solid rgba(255, 204, 0, 0.2);
-            border-radius: 20px;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-            backdrop-filter: blur(10px);
+        /* Container หลัก จัดการด้วย Glassmorphism */
+        .app-container {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            position: relative;
+            z-index: 10;
         }
 
-        h1 {
-            font-weight: 600;
-            letter-spacing: 2px;
-            color: var(--primary-yellow);
-            margin-bottom: 0.5rem;
+        /* แสงตกแต่งพื้นหลัง */
+        .glow-effect {
+            position: absolute;
+            width: 60vw;
+            height: 60vw;
+            background: radial-gradient(circle, rgba(245, 197, 24, 0.15) 0%, rgba(0,0,0,0) 70%);
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            z-index: 0;
+            pointer-events: none;
+        }
+
+        h1.event-title {
+            font-size: clamp(2rem, 5vw, 4rem);
+            font-weight: 800;
             text-transform: uppercase;
+            letter-spacing: 2px;
+            text-align: center;
+            margin-bottom: 10px;
+            color: #fff;
+            text-shadow: 0 0 10px rgba(255,255,255,0.3), 0 0 20px #f5c518, 0 0 40px #f5c518;
         }
 
         p.subtitle {
-            font-size: 0.9rem;
-            color: var(--text-gray);
-            margin-bottom: 2rem;
+            font-size: 1.2rem;
+            color: #aaa;
+            margin-bottom: 40px;
+            font-weight: 300;
         }
 
+        /* Screen States */
+        .screen {
+            display: none;
+            flex-direction: column;
+            align-items: center;
+            width: 100%;
+            max-width: 600px;
+            padding: 20px;
+            text-align: center;
+            z-index: 1;
+        }
+
+        .screen.active {
+            display: flex;
+            animation: fadeIn 0.5s ease-in-out;
+        }
+
+        /* Input Styles */
         .input-group {
-            margin-bottom: 1.5rem;
+            width: 100%;
+            margin-bottom: 30px;
         }
 
         input[type="text"] {
-            width: 80%;
-            padding: 12px 20px;
-            background: #2a2a2a;
-            border: 2px solid #333;
-            border-radius: 50px;
-            color: white;
-            font-family: 'Prompt', sans-serif;
-            font-size: 1rem;
+            width: 100%;
+            padding: 15px 20px;
+            font-size: 1.2rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 2px solid rgba(245, 197, 24, 0.3);
+            border-radius: 8px;
+            color: #fff;
             outline: none;
-            transition: 0.3s;
+            text-align: center;
+            transition: all 0.3s ease;
         }
 
         input[type="text"]:focus {
-            border-color: var(--primary-yellow);
-            box-shadow: 0 0 15px rgba(255, 204, 0, 0.3);
+            border-color: #f5c518;
+            background: rgba(255, 255, 255, 0.1);
+            box-shadow: 0 0 15px rgba(245, 197, 24, 0.5);
         }
 
-        .btn-random {
-            background: var(--primary-yellow);
-            color: black;
+        /* Button Styles */
+        button {
+            background: linear-gradient(45deg, #f5c518, #e0a800);
+            color: #000;
             border: none;
             padding: 15px 40px;
-            font-size: 1.1rem;
-            font-weight: 600;
+            font-size: 1.2rem;
+            font-weight: 800;
+            text-transform: uppercase;
             border-radius: 50px;
             cursor: pointer;
-            transition: 0.3s transform, 0.3s box-shadow;
-            font-family: 'Prompt', sans-serif;
-            text-transform: uppercase;
+            transition: all 0.3s ease;
+            box-shadow: 0 5px 15px rgba(245, 197, 24, 0.4);
+            letter-spacing: 1px;
         }
 
-        .btn-random:hover {
-            transform: scale(1.05);
-            box-shadow: 0 0 20px rgba(255, 204, 0, 0.5);
+        button:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 8px 25px rgba(245, 197, 24, 0.6);
         }
 
-        .btn-random:disabled {
-            background: #555;
-            cursor: not-allowed;
+        button:active {
+            transform: translateY(1px);
         }
 
-        /* Result Section */
-        #result-area {
-            display: none;
-            margin-top: 2rem;
-            padding-top: 2rem;
-            border-top: 1px solid #333;
-            animation: fadeIn 0.5s ease-out;
+        /* Spinner Styles */
+        .spinner-text {
+            font-size: clamp(1.5rem, 4vw, 3rem);
+            font-weight: 600;
+            color: #f5c518;
+            height: 80px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            text-shadow: 0 0 15px rgba(245, 197, 24, 0.5);
+        }
+
+        /* Result Styles */
+        .result-card {
+            background: rgba(20, 20, 20, 0.8);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 30px;
+            width: 100%;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+            margin-bottom: 30px;
+        }
+
+        .user-greeting {
+            color: #f5c518;
+            font-size: 1.2rem;
+            margin-bottom: 15px;
+            font-weight: 600;
+        }
+
+        .drink-category {
+            display: inline-block;
+            background: rgba(255, 255, 255, 0.1);
+            padding: 5px 15px;
+            border-radius: 20px;
+            font-size: 0.9rem;
+            color: #aaa;
+            margin-bottom: 15px;
+            letter-spacing: 1px;
+        }
+
+        .drink-name {
+            font-size: 2.2rem;
+            font-weight: 800;
+            margin-bottom: 20px;
+            line-height: 1.2;
+            color: #fff;
+        }
+
+        .drink-details {
+            font-size: 1rem;
+            color: #ddd;
+            line-height: 1.6;
+            text-align: left;
+            background: rgba(0,0,0,0.3);
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 4px solid #f5c518;
         }
 
         @keyframes fadeIn {
             from { opacity: 0; transform: translateY(20px); }
             to { opacity: 1; transform: translateY(0); }
         }
-
-        .greeting {
-            font-size: 1.2rem;
-            color: var(--text-gray);
-            margin-bottom: 1rem;
-        }
-
-        .drink-name {
-            font-size: 1.8rem;
-            font-weight: 600;
-            color: var(--primary-yellow);
-            margin-bottom: 0.5rem;
-        }
-
-        .drink-desc {
-            font-size: 1rem;
-            color: #fff;
-            background: #2a2a2a;
-            padding: 10px;
-            border-radius: 10px;
-            display: inline-block;
-            margin-bottom: 1rem;
-        }
-
-        .ingredients {
-            text-align: left;
-            background: #181818;
-            padding: 15px;
-            border-radius: 10px;
-            font-size: 0.85rem;
-        }
-
-        .ingredients-title {
-            color: var(--primary-yellow);
-            font-weight: 600;
-            margin-bottom: 5px;
-            display: block;
-        }
-
-        /* Slot Machine Animation */
-        #loading {
-            display: none;
-            font-size: 1.5rem;
-            font-weight: 600;
-            color: var(--primary-yellow);
-            margin: 20px 0;
-        }
-
-        .footer {
-            margin-top: 2rem;
-            font-size: 0.7rem;
-            color: #555;
-            text-transform: uppercase;
-            letter-spacing: 1px;
-        }
     </style>
 </head>
 <body>
 
-<div class="container">
-    <h1>BCU FORMULA</h1>
-    <p class="subtitle">EXCLUSIVE DRINK SELECTION</p>
+    <div class="glow-effect"></div>
 
-    <div id="setup-area">
-        <div class="input-group">
-            <input type="text" id="username" placeholder="กรอกชื่อของคุณที่นี่..." autocomplete="off">
-        </div>
-        <button class="btn-random" onclick="startRandom()">สุ่มเครื่องดื่มคืนนี้</button>
-    </div>
-
-    <div id="loading">กำลังเตรียมเครื่องดื่ม...</div>
-
-    <div id="result-area">
-        <div class="greeting">คุณ <span id="display-name" style="color: white;"></span> คืนนี้คุณได้...</div>
-        <div id="drink-display">
-            <div class="drink-name" id="res-name"></div>
-            <div class="drink-desc" id="res-type"></div>
-            <div class="ingredients">
-                <span class="ingredients-title">รายละเอียด/ประวัติ:</span>
-                <span id="res-info"></span>
+    <div class="app-container">
+        
+        <div id="screen-setup" class="screen active">
+            <h1 class="event-title">BCU FORMULA<br>CONCERT</h1>
+            <p class="subtitle">VIP DRINK ROULETTE</p>
+            
+            <div class="input-group">
+                <input type="text" id="playerName" placeholder="กรอกชื่อของคุณเพื่อเริ่มสุ่ม" autocomplete="off">
             </div>
+            <button onclick="startSpinning()">ENTER PITLANE</button>
         </div>
-        <br>
-        <button class="btn-random" style="padding: 10px 25px; font-size: 0.9rem;" onclick="resetGame()">สุ่มใหม่</button>
+
+        <div id="screen-spin" class="screen">
+            <h1 class="event-title">SHUFFLING...</h1>
+            <p class="subtitle">กำลังมิกซ์เครื่องดื่มให้คุณ <span id="display-name-spin"></span></p>
+            <div class="spinner-text" id="spinner-text">เตรียมตัว...</div>
+        </div>
+
+        <div id="screen-result" class="screen">
+            <h1 class="event-title">YOUR DRINK</h1>
+            
+            <div class="result-card">
+                <div class="user-greeting">🎉 สำหรับคุณ: <span id="display-name-result"></span></div>
+                <div class="drink-category" id="result-category">CATEGORY</div>
+                <div class="drink-name" id="result-name">DRINK NAME</div>
+                <div class="drink-details" id="result-details">DETAILS</div>
+            </div>
+
+            <button onclick="resetGame()">สุ่มใหม่อีกแก้ว</button>
+        </div>
+
     </div>
 
-    <div class="footer">BCU Formula Concert x Private Lounge</div>
-</div>
+    <script>
+        // ฐานข้อมูลเครื่องดื่มและส่วนผสมแบบเจาะลึก
+        const drinks = [
+            {
+                category: "🍺 DRAFT BEER KEGS",
+                name: "Hoegaarden Rosée / Original",
+                details: "วีทเบียร์สไตล์เบลเยียมสุดคลาสสิก หมักอย่างพิถีพิถันด้วยเปลือกส้มและคอริแอนเดอร์ (Original) ให้กลิ่นหอมซิตรัสสดชื่น หรือเลือกผสานราสเบอร์รี่แท้ (Rosée) ที่ให้ความหวานอมเปรี้ยว ดื่มง่าย เหมาะสำหรับการเปิดฟลอร์คอนเสิร์ต"
+            },
+            {
+                category: "🍺 DRAFT BEER KEGS",
+                name: "Singha Reserve",
+                details: "พรีเมียมลากเกอร์เบียร์สัญชาติไทยที่ยกระดับความเข้มข้น ใช้ฮอปส์คัดพิเศษสายพันธุ์ยุโรป หมักบ่มยาวนานกว่าเบียร์ปกติ ให้บอดี้ที่แน่น รสชาตินุ่มลึก และทิ้งสัมผัสหอมกลิ่นมอลต์ชัดเจนในตอนท้าย"
+            },
+            {
+                category: "🍺 DRAFT BEER KEGS",
+                name: "Asahi Super Dry",
+                details: "ลากเกอร์เบียร์สไตล์ญี่ปุ่น ผลิตด้วยนวัตกรรม Karakuchi ให้รสชาติที่คลีน ดราย และสดชื่นถึงขีดสุด ตัดเลี่ยนได้ดีเยี่ยม ดื่มลื่นคอ เหมาะสำหรับจังหวะเพลงมันส์ๆ ที่ต้องการความเฟรช"
+            },
+            {
+                category: "🍺 DRAFT BEER KEGS",
+                name: "Paulaner Hefe-Weißbier",
+                details: "คราฟต์เบียร์สไตล์เยอรมันดั้งเดิมจากมิวนิค แบบไม่ผ่านการกรอง โดดเด่นด้วยกลิ่นกล้วยและกานพลูตามธรรมชาติจากการหมัก ฟองหนานุ่ม แฝงรสหวานอ่อนๆ ของมอลต์ข้าวสาลี"
+            },
+            {
+                category: "🍺 DRAFT BEER KEGS",
+                name: "Guinness Stout",
+                details: "ไอริชสแตาต์สีดำเข้มข้น เกิดจากการคั่วข้าวบาร์เลย์อย่างพิถีพิถัน ให้โน้ตของกาแฟโรสต์และดาร์กช็อกโกแลต ทีเด็ดคือฟองครีมด้านบนที่นุ่มละมุนสุดๆ ซึ่งเกิดจากการอัดก๊าซไนโตรเจน"
+            },
+            {
+                category: "🥃 HARD LIQUOR (SPIRITS)",
+                name: "The Macallan 12 Years Old",
+                details: "ซิงเกิลมอลต์สก็อตช์วิสกี้ระดับท็อป บ่ม 12 ปีในถังไม้โอ๊คเชอร์รี่ที่คัดสรรจากเจเรซ ประเทศสเปน โดดเด่นด้วยกลิ่นหอมของผลไม้อบแห้ง เครื่องเทศจางๆ ไม้โอ๊ค และวานิลลา หรูหราและซับซ้อน"
+            },
+            {
+                category: "🥃 HARD LIQUOR (SPIRITS)",
+                name: "Glenfiddich 15 Years Old",
+                details: "ซิงเกิลมอลต์วิสกี้ที่บ่มด้วยระบบ Solera Vat เอกสิทธิ์เฉพาะ ผสานวิสกี้จากถังไม้เชอร์รี่ ถังเบอร์เบิน และถังโอ๊คใหม่เข้าด้วยกัน โดดเด่นด้วยโน้ตของน้ำผึ้ง วานิลลาอุ่นๆ และผลไม้สีเข้ม รสนุ่มละมุนขั้นสุด"
+            },
+            {
+                category: "🥃 HARD LIQUOR (SPIRITS)",
+                name: "Maker's Mark",
+                details: "เคนทักกีสเตรทเบอร์เบินระดับพรีเมียม ใช้ข้าวสาลีฤดูหนาวสีแดงแทนข้าวไรย์ในการหมัก ทำให้ได้ความหวานนุ่มนวล ไม่บาดคอ หอมกลิ่นคาราเมล วานิลลา และโอ๊คปิ้ง ปิดผนึกด้วยจุกครั่งสีแดงอันเป็นเอกลักษณ์"
+            },
+            {
+                category: "🥃 HARD LIQUOR (SPIRITS)",
+                name: "Grey Goose",
+                details: "พรีเมียมวอดก้าจากฝรั่งเศส ใช้ข้าวสาลีฤดูหนาวชั้นดีจากแคว้น Picardy และน้ำแร่บริสุทธิ์จาก Gensac กลั่นถึง 5 ครั้งจนได้รสชาติที่คลีน บริสุทธิ์ และนุ่มนวล เหมาะสำหรับดื่มแบบ On the rock หรือผสมมิกเซอร์แก้วโปรด"
+            },
+            {
+                category: "🥃 HARD LIQUOR (SPIRITS)",
+                name: "Hendrick's Gin",
+                details: "อาร์ติซานจินสุดคราฟต์ โดดเด่นไม่เหมือนใครด้วยการอินฟิวส์กลิ่นหอมของดอกกุหลาบและแตงกวา ผสมผสานกับพฤกษศาสตร์อีก 11 ชนิด ให้รสชาติที่ซับซ้อน สดชื่น แนะนำให้ดื่มคู่กับโทนิคและฝานแตงกวาบางๆ"
+            },
+            {
+                category: "🥃 HARD LIQUOR (SPIRITS)",
+                name: "Don Julio Reposado",
+                details: "เตกีลาระดับพรีเมียม ทำจากบลูอากาเว่ 100% บ่มนาน 8 เดือนในถังไม้โอ๊คขาวอเมริกัน (นานกว่ามาตรฐาน) ให้กลิ่นอากาเว่สุกหอมหวาน แฝงด้วยโน้ตของดาร์กช็อกโกแลต วานิลลา และซินนามอนอ่อนๆ นุ่มนวลเกินคาด"
+            }
+        ];
 
-<script>
-    const drinks = [
-        { name: "Hoegaarden Rosée", type: "เบียร์สดถัง (Keg)", info: "เบียร์ไวเซ่นผสมราสเบอร์รี่ ให้รสชาติหวานอมเปรี้ยว สดชื่น เหมาะกับการเริ่มต้นค่ำคืน" },
-        { name: "Singha Reserve", type: "เบียร์สดพรีเมียม", info: "เบียร์ลาเกอร์ระดับพรีเมียมที่ใช้มอลต์แท้ 100% ให้สัมผัสนุ่มและมีกลิ่นหอมเฉพาะตัว" },
-        { name: "Asahi Super Dry", type: "เย็นจัด สไตล์ญี่ปุ่น", info: "เบียร์ที่มีความซ่าและรสสัมผัสที่เฉียบคม (Karakuchi) จบได้สะอาดลิ้น" },
-        { name: "Paulaner Hefe-Weißbier", type: "คราฟต์เบียร์สไตล์เยอรมัน", info: "เบียร์ข้าวสาลีที่ไม่ผ่านการกรอง มีกลิ่นคล้ายกล้วยและกานพลูอันเป็นเอกลักษณ์จากมิวนิก" },
-        { name: "Guinness Stout", type: "เบียร์ดำ รสนุ่มลึก", info: "เบียร์ดำระดับตำนานจากไอร์แลนด์ เนื้อสัมผัสเนียนนุ่มเหมือนครีม พร้อมรสคั่วของมอลต์" },
-        { name: "The Macallan 12 Years Old", type: "Single Malt Scotch", info: "วิสกี้ชั้นเลิศบ่มในถังเชอร์รี่โอ๊ค ให้กลิ่นผลไม้แห้ง เครื่องเทศ และความหวานของทอฟฟี่" },
-        { name: "Glenfiddich 15 Years Old", type: "Single Malt", info: "บ่มในถังไม้โอ๊คสามชนิด (Solera System) ให้ความนุ่มนวลซับซ้อน กลิ่นน้ำผึ้งและวานิลลา" },
-        { name: "Maker's Mark", type: "Kentucky Bourbon", info: "เบอร์เบิ้นวิสกี้ที่ใช้ข้าวสาลีแดงแทนไรน์ รสชาติจึงมีความหวานนุ่มนวลและละมุนกว่าปกติ" },
-        { name: "Grey Goose", type: "Premium Vodka", info: "วอดก้าจากฝรั่งเศส ผลิตจากข้าวสาลีคุณภาพดีที่สุด กรองผ่านหินปูนธรรมชาติ สะอาดและนุ่มนวล" },
-        { name: "Hendrick's Gin", type: "Artisan Gin", info: "จินพรีเมียมที่มีส่วนผสมแปลกใหม่จากกุหลาบบัลแกเรียและแตงกวา ให้กลิ่นหอมดอกไม้อันโดดเด่น" },
-        { name: "Don Julio Reposado", type: "Tequila", info: "เตกีล่าที่บ่มในถังไม้โอ๊คขาวนาน 8 เดือน ให้รสสัมผัสของดาร์กช็อกโกแลตและวานิลลา" }
-    ];
+        let userName = "";
 
-    function startRandom() {
-        const name = document.getElementById('username').value;
-        if (!name) {
-            alert("กรุณากรอกชื่อก่อนเริ่มสุ่มครับ!");
-            return;
+        // ฟังก์ชันสลับหน้าจอ
+        function switchScreen(screenId) {
+            document.querySelectorAll('.screen').forEach(screen => {
+                screen.classList.remove('active');
+            });
+            document.getElementById(screenId).classList.add('active');
         }
 
-        document.getElementById('setup-area').style.display = 'none';
-        document.getElementById('loading').style.display = 'block';
+        // เริ่มต้นสุ่ม
+        function startSpinning() {
+            const nameInput = document.getElementById('playerName');
+            if(nameInput.value.trim() === "") {
+                alert("กรุณากรอกชื่อก่อนเข้างานคอนเสิร์ตครับ!");
+                nameInput.focus();
+                return;
+            }
+            
+            userName = nameInput.value.trim();
+            document.getElementById('display-name-spin').innerText = userName;
+            
+            switchScreen('screen-spin');
 
-        // หน่วงเวลาจำลองการสุ่มให้ดูตื่นเต้น
-        setTimeout(() => {
-            const randomIndex = Math.floor(Math.random() * drinks.length);
-            const selected = drinks[randomIndex];
+            // แอนิเมชันสับเปลี่ยนชื่อเครื่องดื่ม
+            const spinnerText = document.getElementById('spinner-text');
+            let spinCount = 0;
+            const maxSpins = 30; // จำนวนครั้งที่สลับชื่อ
+            const spinInterval = 80; // ความเร็วในการสลับ (มิลลิวินาที)
 
-            document.getElementById('display-name').innerText = name;
-            document.getElementById('res-name').innerText = selected.name;
-            document.getElementById('res-type').innerText = selected.type;
-            document.getElementById('res-info').innerText = selected.info;
+            const spinner = setInterval(() => {
+                const randomDrink = drinks[Math.floor(Math.random() * drinks.length)];
+                spinnerText.innerText = randomDrink.name;
+                spinCount++;
 
-            document.getElementById('loading').style.display = 'none';
-            document.getElementById('result-area').style.display = 'block';
-        }, 1500);
-    }
+                if(spinCount >= maxSpins) {
+                    clearInterval(spinner);
+                    showFinalResult();
+                }
+            }, spinInterval);
+        }
 
-    function resetGame() {
-        document.getElementById('result-area').style.display = 'none';
-        document.getElementById('setup-area').style.display = 'block';
-        document.getElementById('username').value = '';
-    }
-</script>
+        // แสดงผลลัพธ์
+        function showFinalResult() {
+            const finalDrink = drinks[Math.floor(Math.random() * drinks.length)];
+            
+            document.getElementById('display-name-result').innerText = userName;
+            document.getElementById('result-category').innerText = finalDrink.category;
+            document.getElementById('result-name').innerText = finalDrink.name;
+            document.getElementById('result-details').innerText = finalDrink.details;
 
+            switchScreen('screen-result');
+        }
+
+        // รีเซ็ตเกม
+        function resetGame() {
+            switchScreen('screen-spin');
+            startSpinning(); // ข้ามหน้ากรอกชื่อไปเลยถ้ายูสเซอร์เดิม
+        }
+    </script>
 </body>
 </html>
